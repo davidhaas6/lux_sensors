@@ -12,7 +12,9 @@ TSL2591::TSL2591() {
   // Create I2C bus
 	if((i2cHandler = open("/dev/i2c-1", O_RDWR)) < 0)
 	{
-		printf("Failed to open the bus. \n");
+		error = errno;
+		printf("Failed to open the bus: %i \n", error);
+
 		exit(1);
 	}
 	// Get I2C device, TSL2561 I2C address is 0x29

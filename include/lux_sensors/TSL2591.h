@@ -77,6 +77,7 @@ private:
   uint16_t read16(uint8_t readRegister);
 
 public:
+    int error;
     TSL2591();
     bool enable();
     bool disable();
