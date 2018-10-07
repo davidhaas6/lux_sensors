@@ -9,7 +9,7 @@
 #pragma GCC diagnostic ignored "-Wshadow"
 #include "ros/ros.h"
 #include "sensor_msgs/Illuminance.h"
-#pragma GCC disgnostic pop
+#pragma GCC diagnostic pop
 
 #include "lux_sensors/TSL2591.h"
 
