@@ -5,8 +5,11 @@
  * @since: 9/28/18
  */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
 #include "ros/ros.h"
 #include "sensor_msgs/Illuminance.h"
+#pragma GCC disgnostic pop
 
 #include "lux_sensors/TSL2591.h"
 
