@@ -38,8 +38,13 @@ int main(int argc, char **argv) {
     sensor_msgs::Illuminance tsl2591_ir_msg ;
 
     tsl2591_lux_msg.illuminance = tsl2591.getLux(readings);
+    tsl2591_lux_msg.header.stamp = ros::Time::now();
+
     tsl2591_vis_msg.illuminance = readings.ch0;
+    tsl2591_vis_msg.header.stamp = ros::Time::now();
+
     tsl2591_ir_msg.illuminance = readings.ch1;
+    tsl2591_ir_msg.header.stamp = ros::Time::now();
 
     tsl2591_lux_pub.publish(tsl2591_lux_msg);
     tsl2591_vis_pub.publish(tsl2591_vis_msg);
