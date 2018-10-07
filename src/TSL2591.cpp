@@ -10,7 +10,7 @@
 /**
  * Initializes i2c communication as well as gain and integration time
  */
-TSL2591::TSL2591(tsl2591IntegrationTime_t nTime, tsl2591Gain_t nGain) {
+TSL2591(tsl2591IntegrationTime_t nTime, tsl2591Gain_t nGain) {
   // Create I2C bus
 	if((i2cHandler = open("/dev/i2c-1", O_RDWR)) < 0)
 	{
