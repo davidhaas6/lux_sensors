@@ -86,7 +86,7 @@ private:
 
 public:
     int error;
-    TSL2591::TSL2591(tsl2591IntegrationTime_t nTime, tsl2591Gain_t nGain);
+    TSL2591(tsl2591IntegrationTime_t nTime, tsl2591Gain_t nGain);
     bool enable();
     bool disable();
     bool setIntegration(tsl2591IntegrationTime_t newTime);
