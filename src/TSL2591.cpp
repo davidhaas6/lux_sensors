@@ -1,13 +1,15 @@
 /*
- * Lux Sensors
- *
- * a program to read the inputs from the Adafruit TSL2561 and TSL2591 lux sensors
- *
- * David Haas        dhaas6@vt.edu          September 28th, 2018
+ * Name: TSL2591
+ * Purpose: A linux driver for the Adafruit TSL2591 lux sensor
+ * @author: David Haas
+ * @since: 9/28/18
  */
 
 #include "lux_sensors/TSL2591.h"
 
+/**
+ * Initializes i2c communication as well as gain and integration time
+ */
 TSL2591::TSL2591() {
   // Create I2C bus
 	if((i2cHandler = open("/dev/i2c-1", O_RDWR)) < 0)
@@ -31,6 +33,12 @@ TSL2591::TSL2591() {
   disable();
 }
 
+/**
+ * Writes 8 bits to an i2c device register
+ * @param writeRegister The register on the device to write to
+ * @param data The data to write to the register
+ * @return A bool denoting whether the device was successfully written to
+ */
 bool TSL2591::write8(uint8_t writeRegister, uint8_t data) {
   char config[2];
   config[0] = writeRegister;
@@ -38,6 +46,11 @@ bool TSL2591::write8(uint8_t writeRegister, uint8_t data) {
   return write(i2cHandler, config, 2);
 }
 
+/**
+ * Reads 16 bits from an i2c device register
+ * @param readRegister The register on the device to read from
+ * @return The data read from the register
+ */
 uint16_t TSL2591::read16(uint8_t readRegister) {
   uint8_t reg[1] = {readRegister};
 	write(i2cHandler, reg, 1);
@@ -53,7 +66,10 @@ uint16_t TSL2591::read16(uint8_t readRegister) {
   return reading;
 }
 
-
+/**
+ * Powers on the device and enables the ALS (ambient light sensor)
+ * @return A bool denoting whether the device was successfully enabled
+ */
 bool TSL2591::enable() {
   // Selects the enable register via the command register
   uint8_t cmd_addr = TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE;
@@ -66,6 +82,10 @@ bool TSL2591::enable() {
   return enabled;
 }
 
+/**
+ * Powers off the device
+ * @return A bool denoting whether the device was successfully disabled
+ */
 bool TSL2591::disable() {
   if (!enabled)
     return true;
@@ -78,6 +98,11 @@ bool TSL2591::disable() {
   return enabled;
 }
 
+/**
+ * Sets the integration time (ATIME) of the ALS on the device
+ * @param newTime The hex code of the desired integration time
+ * @return A bool denoting whether the integration time was successfully changed
+ */
 bool TSL2591::setIntegration(tsl2591IntegrationTime_t newTime) {
   int_time = newTime;
 
@@ -90,6 +115,11 @@ bool TSL2591::setIntegration(tsl2591IntegrationTime_t newTime) {
   return ret;
 }
 
+/**
+ * Sets the gain (AGAIN) of the ALS on the device
+ * @param newGain The hex code of the desired gain
+ * @return A bool denoting whether the gain was successfully changed
+ */
 bool TSL2591::setGain(tsl2591Gain_t newGain) {
   gain = newGain;
 
@@ -102,6 +132,10 @@ bool TSL2591::setGain(tsl2591Gain_t newGain) {
   return ret;
 }
 
+/**
+ * Reads the IR and visible ALS data from the device's registers
+ * @return A struct containing each of the channel's data
+ */
 sensorData_t TSL2591::getReadings() {
   uint16_t ch0;
   uint16_t ch1;
@@ -126,22 +160,18 @@ sensorData_t TSL2591::getReadings() {
   return readings;
 }
 
-/************************************************************************/
-/*!
-    @brief  Calculates the visible Lux based on the two light sensors
-    @param  ch0 Data from channel 0 (IR+Visible)
-    @param  ch1 Data from channel 1 (IR)
-    @returns Lux, based on AMS coefficients
-*/
-/**************************************************************************/
+/**
+ * Calculates the visible lux based on the IR and visible sensors
+ * @author Adafruit
+ * @param readings The visible and IR data from the device's registers
+ * @return Lux, based on AMS coefficients
+ */
 float TSL2591::getLux(sensorData_t readings)
 {
   float    f_time, f_gain;
   float    cpl, lux;
 
-  // Note: This algorithm is based on preliminary coefficients
-  // provided by AMS and may need to be updated in the future
-
+	// Sets the gain and integration time to their decimal correspondents
   switch (int_time)
   {
     case TSL2591_INTEGRATIONTIME_100MS :
@@ -196,6 +226,10 @@ float TSL2591::getLux(sensorData_t readings)
   return lux;
 }
 
+/**
+ * Calculates the visible lux based on the IR and visible sensors
+ * @return Lux, based on AMS coefficients
+ */
 float TSL2591::getLux() {
   return getLux(getReadings());
 }

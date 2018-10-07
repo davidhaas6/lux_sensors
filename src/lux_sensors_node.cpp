@@ -14,55 +14,33 @@
 int main(int argc, char **argv) {
   ros::init(argc, argv, "lux_sensors");
   ros::NodeHandle n;
-  ros::Publisher hdr_2591_pub = n.advertise<sensor_msgs::Illuminance>("lux_hdr", 1000);
-  // ros::Publisher ldr_2561_pub = n.advertise<sensor_msgs::Illuminance>("lux_ldr", 1000);
+  
+  ros::Publisher tsl2591_lux_pub = n.advertise<sensor_msgs::Illuminance>("TSL2591_lux", 1000);
+  ros::Publisher tsl2591_vis_pub = n.advertise<sensor_msgs::Illuminance>("TSL2591_visible", 1000);
+  ros::Publisher tsl2591_ir_pub = n.advertise<sensor_msgs::Illuminance>("TSL2591_ir", 1000);
+
   ros::Rate loop_rate(8);
 
-
-  // // The high dynamic range (HDR) sensor
-  // Adafruit_TSL2591 tsl2591 = Adafruit_TSL2591(2591);
-  // tsl.setGain(TSL2591_GAIN_LOW); // 1x gain for bright light
-  // // How long the sensor collects light data for - ranges from 100-500ms
-  // // higher integration time -> higher resolution data
-  // tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS);
-  //
-  // // The low dynamic range (LDR) sensor
-  // Adafruit_TSL2561 tsl2561 = Adafruit_TSL2561(TSL2561_ADDR_FLOAT, 12345);
-  // tsl.setGain(TSL2561_GAIN_1X); // 1x gain for bright light
-  // tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_101MS); // 13, 101 or 402 ms
   TSL2591 tsl2591;
   tsl2591.setIntegration(TSL2591_INTEGRATIONTIME_100MS);
   tsl2591.setGain(TSL2591_GAIN_LOW);
 
-
-
+  // Read, publish, log data
   while (ros::ok())
   {
-    sensor_msgs::Illuminance hdr_msg; // Message for the TSL2591
-    //sensor_msgs::Illuminance ldr_msg; // Message for the TSL2561
+    sensorData_t readings = tsl2591.getReadings();
 
-    hdr_msg.illuminance = tsl2591.getLux();
-    ROS_INFO("%f", hdr_msg.illuminance);
-    hdr_2591_pub.publish(hdr_msg);
-    // // Reads and publishes the HDR lux
-    // tsl2591.getEvent(&event);
-    // if(event.light) { // If
-    //   hdr_msg.illuminance = event.light;
-    //   hdr_2591_pub.publish(hdr_msg);
-    //   ROS_INFO("%f", hdr_msg.illuminance);
-    // } else {
-    //   ROS_WARN("TSL2591 Reading == 0, Sensor is likely over saturated");
-    // }
-    //
-    // // Reads and publishes the HDR lux
-    // tsl2561.getEvent(&event);
-    // if(event.light) { // If
-    //   ldr_msg.illuminance = event.light;
-    //   ldr_2561_pub.publish(ldr_msg);
-    //   ROS_INFO("%f", ldr_msg.illuminance);
-    // } else {
-    //   ROS_WARN("TSL2561 Reading == 0, Sensor is likely over saturated");
-    // }
+    sensor_msgs::Illuminance tsl2591_lux_msg = tsl2591.getLux(readings);
+    sensor_msgs::Illuminance tsl2591_vis_msg = readings.ch0;
+    sensor_msgs::Illuminance tsl2591_ir_msg = readings.ch1;
+
+    tsl2591_lux_pub.publish(tsl2591_lux_msg);
+    tsl2591_vis_pub.publish(tsl2591_vis_msg);
+    tsl2591_ir_pub.publish(tsl2591_ir_msg);
+
+    ROS_INFO("Lux: %f", tsl2591_lux_msg.illuminance);
+    ROS_INFO("Visible: %f", tsl2591_vis_msg.illuminance);
+    ROS_INFO("Infared: %f", tsl2591_ir_msg.illuminance);
 
     loop_rate.sleep();
   }
