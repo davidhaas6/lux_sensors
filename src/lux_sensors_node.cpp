@@ -30,9 +30,13 @@ int main(int argc, char **argv) {
   {
     sensorData_t readings = tsl2591.getReadings();
 
-    sensor_msgs::Illuminance tsl2591_lux_msg = tsl2591.getLux(readings);
-    sensor_msgs::Illuminance tsl2591_vis_msg = readings.ch0;
-    sensor_msgs::Illuminance tsl2591_ir_msg = readings.ch1;
+    sensor_msgs::Illuminance tsl2591_lux_msg;
+    sensor_msgs::Illuminance tsl2591_vis_msg;
+    sensor_msgs::Illuminance tsl2591_ir_msg ;
+
+    tsl2591_lux_msg.illuminance = tsl2591.getLux(readings);
+    tsl2591_vis_msg.illuminance = readings.ch0;
+    tsl2591_ir_msg.illuminance = readings.ch1;
 
     tsl2591_lux_pub.publish(tsl2591_lux_msg);
     tsl2591_vis_pub.publish(tsl2591_vis_msg);
