@@ -10,7 +10,7 @@
 /**
  * Initializes i2c communication as well as gain and integration time
  */
-TSL2591::TSL2591() {
+TSL2591::TSL2591(tsl2591IntegrationTime_t nTime, tsl2591Gain_t nGain) {
   // Create I2C bus
 	if((i2cHandler = open("/dev/i2c-1", O_RDWR)) < 0)
 	{
@@ -26,8 +26,11 @@ TSL2591::TSL2591() {
 		exit(1);
   }
 
-  setIntegration(TSL2591_INTEGRATIONTIME_100MS);
-  setGain(TSL2591_GAIN_LOW);
+
+	int_time = nTime;
+	gain = nGain;
+	// Only sets integration time b/c both are written in that method
+  setIntegration(int_time);
 
   // Note: by default, the device is in power down mode on bootup
   disable();
@@ -40,9 +43,9 @@ TSL2591::TSL2591() {
  * @return A bool denoting whether the device was successfully written to
  */
 bool TSL2591::write8(uint8_t writeRegister, uint8_t data) {
-  char config[2];
-  config[0] = writeRegister;
-  config[1] = data;
+  char message[2];
+  message[0] = writeRegister;
+  message[1] = data;
   return write(i2cHandler, config, 2);
 }
 
@@ -72,7 +75,7 @@ uint16_t TSL2591::read16(uint8_t readRegister) {
  */
 bool TSL2591::enable() {
   // Selects the enable register via the command register
-  uint8_t cmd_addr = TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE;
+  uint8_t cmd_addr = TSL2591_COMMAND_BITS | TSL2591_REGISTER_ENABLE;
   // enables the ALS and powers on the device
   uint8_t data = TSL2591_ENABLE_AEN | TSL2591_ENABLE_POWERON;
 
@@ -89,8 +92,9 @@ bool TSL2591::enable() {
 bool TSL2591::disable() {
   if (!enabled)
     return true;
+
   // Selects the enable register via the command register
-  uint8_t cmd_addr = TSL2591_COMMAND_BIT | TSL2591_REGISTER_ENABLE;
+  uint8_t cmd_addr = TSL2591_COMMAND_BITS | TSL2591_REGISTER_ENABLE;
   // enables the ALS and powers off the device
   uint8_t data = TSL2591_ENABLE_POWEROFF;
 
@@ -106,9 +110,13 @@ bool TSL2591::disable() {
 bool TSL2591::setIntegration(tsl2591IntegrationTime_t newTime) {
   int_time = newTime;
 
-  uint8_t cmd_addr = TSL2591_COMMAND_BIT | TSL2591_REGISTER_CONTROL;
+	// Selects the control register
+  uint8_t cmd_addr = TSL2591_COMMAND_BITS | TSL2591_REGISTER_CONTROL;
+
+	// Sets the current gain and the new time
   uint8_t data = gain | int_time;
 
+	// Write data
   enable();
   bool ret = write8(cmd_addr, data);
   disable();
@@ -123,9 +131,13 @@ bool TSL2591::setIntegration(tsl2591IntegrationTime_t newTime) {
 bool TSL2591::setGain(tsl2591Gain_t newGain) {
   gain = newGain;
 
-  uint8_t cmd_addr = TSL2591_COMMAND_BIT | TSL2591_REGISTER_CONTROL;
-  uint8_t data = gain | int_time;
+	// Selects the control register
+	uint8_t cmd_addr = TSL2591_COMMAND_BITS | TSL2591_REGISTER_CONTROL;
 
+	// Sets the current gain and the new time
+	uint8_t data = gain | int_time;
+
+	// Write data
   enable();
   bool ret = write8(cmd_addr, data);
   disable();
@@ -137,19 +149,20 @@ bool TSL2591::setGain(tsl2591Gain_t newGain) {
  * @return A struct containing each of the channel's data
  */
 sensorData_t TSL2591::getReadings() {
-  uint16_t ch0;
-  uint16_t ch1;
+  uint16_t ch0; // visible channel
+  uint16_t ch1; // IR channel
 
   enable();
-  // Sleeps in microseconds to allow the ALS to integrate
-  // 108 is the max integration time per step
+  // Sleeps (in microseconds) to allow the ALS to integrate
+  // 108 is the max integration time per step as per the datasheet
   for (uint8_t d=0; d<=int_time; d++)
   {
     usleep((108 + int_time) * 1000);
   }
 
-  ch0 = read16(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CHAN0_LOW);
-  ch1 = read16(TSL2591_COMMAND_BIT | TSL2591_REGISTER_CHAN1_LOW);
+	// Reads in data
+  ch0 = read16(TSL2591_COMMAND_BITS | TSL2591_REGISTER_CHAN0_LOW);
+  ch1 = read16(TSL2591_COMMAND_BITS | TSL2591_REGISTER_CHAN1_LOW);
 
   disable();
 

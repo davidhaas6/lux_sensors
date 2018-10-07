@@ -1,3 +1,10 @@
+/*
+ * Name: TSL2591
+ * Purpose: A linux driver for the Adafruit TSL2591 lux sensor
+ * @author: David Haas
+ * @since: 9/28/18
+ */
+
 #ifndef LUX_SENSOR_H
 #define LUX_SENSOR_H
 
@@ -15,7 +22,7 @@
 #define TSL2591_ADDR              (0x29)
 
 ///< 1010 0000: bits 7 and 5 for 'command normal'
-#define TSL2591_COMMAND_BIT       (0xA0)
+#define TSL2591_COMMAND_BITS      (0xA0)
 
 // Bit to enable the ALS register
 #define TSL2591_ENABLE_AEN        (0x02)
@@ -24,9 +31,10 @@
 #define TSL2591_ENABLE_POWERON    (0x01)
 #define TSL2591_ENABLE_POWEROFF   (0x00)
 
-#define TSL2591_LUX_DF            (408.0F) ///< Lux cooefficient
+///< Lux cooefficient
+#define TSL2591_LUX_DF            (408.0F)
 
-
+// Stores the data from each channel
 typedef struct {
   uint16_t ch0;
   uint16_t ch1;

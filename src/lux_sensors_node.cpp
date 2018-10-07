@@ -1,9 +1,8 @@
 /*
- * Lux Data Node
- *
- * Publishes the lux data to ROS
- *
- * David Haas        dhaas6@vt.edu          September 28th, 2018
+ * Name: lux_sensors_node
+ * Purpose: A node for the TSL2591 linux driver
+ * @author: David Haas
+ * @since: 9/28/18
  */
 
 #include "ros/ros.h"
@@ -14,16 +13,17 @@
 int main(int argc, char **argv) {
   ros::init(argc, argv, "lux_sensors");
   ros::NodeHandle n;
-  
+
+  // Node publishes raw data from each channel as well as the lux calculated
   ros::Publisher tsl2591_lux_pub = n.advertise<sensor_msgs::Illuminance>("TSL2591_lux", 1000);
   ros::Publisher tsl2591_vis_pub = n.advertise<sensor_msgs::Illuminance>("TSL2591_visible", 1000);
   ros::Publisher tsl2591_ir_pub = n.advertise<sensor_msgs::Illuminance>("TSL2591_ir", 1000);
 
   ros::Rate loop_rate(8);
 
-  TSL2591 tsl2591;
-  tsl2591.setIntegration(TSL2591_INTEGRATIONTIME_100MS);
-  tsl2591.setGain(TSL2591_GAIN_LOW);
+  // Integration time is 100ms to get frequent updates from sensor
+  // Gain is low (1x) because it will be under full-daylight conditions
+  TSL2591 tsl2591(TSL2591_INTEGRATIONTIME_100MS, TSL2591_GAIN_LOW);
 
   // Read, publish, log data
   while (ros::ok())
