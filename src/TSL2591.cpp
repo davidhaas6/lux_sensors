@@ -46,7 +46,7 @@ bool TSL2591::write8(uint8_t writeRegister, uint8_t data) {
   char message[2];
   message[0] = writeRegister;
   message[1] = data;
-  return write(i2cHandler, config, 2);
+  return write(i2cHandler, message, 2);
 }
 
 /**
