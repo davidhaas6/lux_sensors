@@ -18,9 +18,9 @@ int main(int argc, char **argv) {
 	ros::NodeHandle n;
 
 	// Node publishes raw data from each channel as well as the lux calculated
-	ros::Publisher tsl2591_lux_pub = n.advertise<sensor_msgs::Illuminance>("TSL2591_lux", 1000);
-	ros::Publisher tsl2591_vis_pub = n.advertise<sensor_msgs::Illuminance>("TSL2591_visible", 1000);
-	ros::Publisher tsl2591_ir_pub = n.advertise<sensor_msgs::Illuminance>("TSL2591_ir", 1000);
+	ros::Publisher tsl2591_lux_pub = n.advertise<sensor_msgs::Illuminance>("TSL2591_lux", 10);
+	ros::Publisher tsl2591_vis_pub = n.advertise<sensor_msgs::Illuminance>("TSL2591_visible", 10);
+	ros::Publisher tsl2591_ir_pub = n.advertise<sensor_msgs::Illuminance>("TSL2591_ir", 10);
 
 	ros::Rate loop_rate(8);
 
@@ -50,9 +50,7 @@ int main(int argc, char **argv) {
 		tsl2591_vis_pub.publish(tsl2591_vis_msg);
 		tsl2591_ir_pub.publish(tsl2591_ir_msg);
 
-		ROS_INFO("Lux: %f", tsl2591_lux_msg.illuminance);
-		ROS_INFO("Visible: %f", tsl2591_vis_msg.illuminance);
-		ROS_INFO("Infared: %f", tsl2591_ir_msg.illuminance);
+		ROS_INFO_THROTTLE(5, "Lux: %f", tsl2591_lux_msg.illuminance);
 
 		loop_rate.sleep();
 	}
