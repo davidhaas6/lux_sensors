@@ -25,14 +25,14 @@ int main(int argc, char **argv) {
   ros::Subscriber sub = n.subscribe("TSL2591_lux", 100, luxCallback);
 
   if (argc == 1) {
-  ros::spinOnce();
-  for(float exp_time : exp_times) {
-    //camera.setExposure(false, (int) exp_time, DEFAULT_BRIGHTNESS);
-    //camera.capture(false, ros::Time::now());
-    usleep(exp_time * 100); // sleeps in microseconds
-  }
-}
-  else if (argc == 2) {
+    for(float exp_time : exp_times) {
+      ros::spinOnce();
+      //camera.setExposure(false, (int) exp_time, DEFAULT_BRIGHTNESS);
+      //camera.capture(false, ros::Time::now());
+      usleep(exp_time * 100); // sleeps in microseconds
+    }
+  } else if (argc == 2) {
+    ros::spinOnce();
     //camera.setExposure(false, (int) std::stoi(argv[1]), DEFAULT_BRIGHTNESS);
     //camera.capture(false, ros::Time::now());
   }
