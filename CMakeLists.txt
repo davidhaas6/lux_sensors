@@ -78,14 +78,14 @@ target_link_libraries(lux_sensors_node
   ${PROJECT_NAME}
 )
 
-add_executable(camera_testing_node
-  src/camera_testing_node.cpp
+add_executable(camera_test
+  src/camera_test.cpp
 )
-add_dependencies(camera_testing_node
+add_dependencies(camera_test
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
   ${catkin_EXPORTED_TARGETS}
 )
-target_link_libraries(camera_testing_node
+target_link_libraries(camera_test
   ${catkin_LIBRARIES}
   ${PROJECT_NAME}
 )
